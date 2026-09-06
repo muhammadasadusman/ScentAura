@@ -1,7 +1,7 @@
+
 import dns from "dns";
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
-
 
 import express from "express";
 import userRoutes from "./routes/userRoutes.js";
@@ -12,52 +12,105 @@ import orderRoutes from "./routes/orderRoutes.js";
 import dotenv from "dotenv";
 import uploadRoutes from "./routes/uploadRoutes.js";
 
-
 dotenv.config();
-
-connectDB();
 
 const app = express();
 
+// ===============================
+// Connect MongoDB
+// ===============================
+connectDB();
 
-// Request check middleware
+// ===============================
+// Request Check Middleware
+// ===============================
 app.use((req, res, next) => {
-  console.log(req.method, req.url);
+  console.log(`${req.method} ${req.url}`);
   next();
 });
 
+// ===============================
+// CORS CONFIGURATION
+// ===============================
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://scent-aura-khaki.vercel.app",
+];
 
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log("❌ CORS blocked:", origin);
+      return callback(new Error("Not allowed by CORS"));
+    },
+
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+
+    allowedHeaders: ["Content-Type", "Authorization"],
+
+    credentials: true,
+  })
+);
+
+
+
+// ===============================
+// Body Parser
+// ===============================
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
+// ===============================
+// API ROUTES
+// ===============================
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/upload", uploadRoutes);
 
-
+// ===============================
+// HOME ROUTE
+// ===============================
 app.get("/", (req, res) => {
-  res.send("🚀 ScentAura Backend Running...");
+  res.json({
+    success: true,
+    message: "🚀 ScentAura Backend Running...",
+  });
 });
 
-
-const PORT = process.env.PORT || 5000;
-
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
-
-
-// Global Error Handler (last me)
+// ===============================
+// GLOBAL ERROR HANDLER
+// ===============================
 app.use((err, req, res, next) => {
-
   console.error("GLOBAL ERROR:");
   console.error(err);
 
-  res.status(500).json({
-    message: err.message,
-  });
+  if (err.message === "Not allowed by CORS") {
+    return res.status(403).json({
+      success: false,
+      message: "CORS blocked this origin",
+    });
+  }
 
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
+
+// ===============================
+// SERVER
+// ===============================
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });

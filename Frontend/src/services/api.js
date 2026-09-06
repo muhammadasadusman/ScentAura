@@ -1,27 +1,23 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://scentaura-production.up.railway.app/api",
+  baseURL: "https://transparency-agile-fish.abasthan.app/api",
 });
 
-
 API.interceptors.request.use(
-  (config)=>{
-
+  (config) => {
     const token = localStorage.getItem("token");
-          console.log("TOKEN CHECK:", token);
+    console.log("TOKEN CHECK:", token);
 
-    if(token){
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
-
   },
-  (error)=>{
+  (error) => {
     return Promise.reject(error);
   }
 );
-
 
 export default API;
