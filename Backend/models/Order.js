@@ -79,16 +79,32 @@ const orderSchema = new mongoose.Schema(
   },
 
 
-  paymentMethod:{
-    type:String,
-    default:"Cash On Delivery",
+  paymentMethod: {
+    type: String,
+    default: "Cash On Delivery",
   },
 
+  transactionId: {
+    type: String,
+    default: "",
+    trim: true,
+  },
 
-  status:{
-    type:String,
-    default:"Pending",
-    enum:[
+  paymentProof: {
+    type: String,
+    default: "",
+  },
+
+  paymentStatus: {
+    type: String,
+    default: "Pending",
+    enum: ["Pending", "Paid", "Verified", "Failed"],
+  },
+
+  status: {
+    type: String,
+    default: "Pending",
+    enum: [
       "Pending",
       "Processing",
       "Shipped",

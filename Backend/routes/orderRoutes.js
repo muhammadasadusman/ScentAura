@@ -2,19 +2,20 @@ import express from "express";
 import {
   createOrder,
   getOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  updatePaymentStatus,
 } from "../controllers/orderController.js";
 
-import { protect, admin } from "../middleware/authMiddleware.js";
+import { protect, admin, optionalProtect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// User Order
-router.post("/", protect, createOrder);
+// Order creation (logged-in or guest checkout)
+router.post("/", optionalProtect, createOrder);
 
 // Admin Only
 router.get("/", protect, admin, getOrders);
-
 router.put("/:id/status", protect, admin, updateOrderStatus);
+router.put("/:id/payment-status", protect, admin, updatePaymentStatus);
 
 export default router;

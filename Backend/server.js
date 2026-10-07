@@ -11,6 +11,8 @@ import cors from "cors";
 import orderRoutes from "./routes/orderRoutes.js";
 import dotenv from "dotenv";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
 
 dotenv.config();
 
@@ -34,6 +36,10 @@ app.use((req, res, next) => {
 // ===============================
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:3000",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
   "https://scent-aura-khaki.vercel.app",
 ];
 
@@ -44,7 +50,10 @@ app.use(
         return callback(null, true);
       }
 
-      if (allowedOrigins.includes(origin)) {
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app")
+      ) {
         return callback(null, true);
       }
 
@@ -75,6 +84,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/messages", messageRoutes);
 
 // ===============================
 // HOME ROUTE
